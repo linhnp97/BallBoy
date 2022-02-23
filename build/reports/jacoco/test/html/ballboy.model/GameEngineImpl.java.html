@@ -1,0 +1,176 @@
+<?xml version="1.0" encoding="UTF-8"?><!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml" lang="en"><head><meta http-equiv="Content-Type" content="text/html;charset=UTF-8"/><link rel="stylesheet" href="../jacoco-resources/report.css" type="text/css"/><link rel="shortcut icon" href="../jacoco-resources/report.gif" type="image/gif"/><title>GameEngineImpl.java</title><link rel="stylesheet" href="../jacoco-resources/prettify.css" type="text/css"/><script type="text/javascript" src="../jacoco-resources/prettify.js"></script></head><body onload="window['PR_TAB_WIDTH']=4;prettyPrint()"><div class="breadcrumb" id="breadcrumb"><span class="info"><a href="../jacoco-sessions.html" class="el_session">Sessions</a></span><a href="../index.html" class="el_report">BallBoy</a> &gt; <a href="index.source.html" class="el_package">ballboy.model</a> &gt; <span class="el_source">GameEngineImpl.java</span></div><h1>GameEngineImpl.java</h1><pre class="source lang-java linenums">package ballboy.model;
+import ballboy.model.Memento.CareTaker;
+import ballboy.model.Memento.GameEngineMemento;
+import ballboy.model.Memento.Memento;
+import ballboy.model.Observer.ScoreObserver;
+import ballboy.model.Observer.Observer;
+import ballboy.model.Observer.Subject;
+import ballboy.model.Prototype.Prototype;
+import ballboy.model.entities.DynamicEntity;
+import ballboy.model.levels.LevelImpl;
+import ballboy.view.GameWindow;
+
+import java.util.ArrayList;
+import java.util.List;
+
+/**
+ * Implementation of the GameEngine interface.
+ * This provides a common interface for the entire game.
+ */
+public class GameEngineImpl implements GameEngine, Subject, Prototype {
+    private Observer observer;
+    private Level level;
+    private final ArrayList&lt;Level&gt; levels;
+    private final int totalLevel;
+    private int currentLevelIndex;
+<span class="fc" id="L26">    private int red = 0 ;</span>
+<span class="fc" id="L27">    private int blue = 0;</span>
+<span class="fc" id="L28">    private int yellow = 0;</span>
+<span class="fc" id="L29">    private boolean gameEnded = false;</span>
+    private CareTaker careTaker;
+
+<span class="fc" id="L32">    public GameEngineImpl(ArrayList&lt;Level&gt; levels, int currentLevelIndex) {</span>
+<span class="fc" id="L33">        this.currentLevelIndex = currentLevelIndex;</span>
+<span class="fc" id="L34">        this.levels = levels;</span>
+<span class="fc" id="L35">        this.level = levels.get(currentLevelIndex);</span>
+<span class="fc" id="L36">        this.totalLevel = levels.size();</span>
+<span class="fc" id="L37">        careTaker = new CareTaker();</span>
+<span class="fc" id="L38">    }</span>
+
+    /**
+     * Copy constructor for GameEngine
+     */
+<span class="fc" id="L43">    public GameEngineImpl(GameEngineImpl gameEngineImpl) {</span>
+<span class="fc" id="L44">        this.red = gameEngineImpl.red;</span>
+<span class="fc" id="L45">        this.blue = gameEngineImpl.blue;</span>
+<span class="fc" id="L46">        this.yellow = gameEngineImpl.yellow;</span>
+<span class="fc" id="L47">        this.currentLevelIndex = gameEngineImpl.currentLevelIndex;</span>
+<span class="fc" id="L48">        this.levels = new ArrayList&lt;&gt;();</span>
+<span class="fc bfc" id="L49" title="All 2 branches covered.">        for(int i = 0; i &lt; gameEngineImpl.levels.size(); i++){</span>
+<span class="fc" id="L50">            Level l =new LevelImpl((LevelImpl) gameEngineImpl.levels.get(i));</span>
+<span class="fc" id="L51">            levels.add(l);</span>
+        }
+<span class="fc" id="L53">        this.currentLevelIndex = gameEngineImpl.currentLevelIndex;</span>
+<span class="fc" id="L54">        this.totalLevel = levels.size();</span>
+<span class="fc" id="L55">        this.level = this.levels.get(currentLevelIndex);</span>
+<span class="fc" id="L56">        this.observer = new ScoreObserver(this,gameEngineImpl.observer.getTotalScore(), gameEngineImpl.observer.getLevelScore());</span>
+<span class="fc" id="L57">        this.gameEnded = gameEngineImpl.gameEnded;</span>
+<span class="fc" id="L58">    }</span>
+
+    public Level getCurrentLevel() {
+<span class="fc" id="L61">        return level;</span>
+    }
+
+    public void startLevel() {
+        // TODO: Handle when multiple levels has been implemented
+<span class="pc bpc" id="L66" title="1 of 2 branches missed.">        if(level.hasFinished()){</span>
+<span class="nc bnc" id="L67" title="All 2 branches missed.">            if(currentLevelIndex + 1 == totalLevel){</span>
+<span class="nc" id="L68">                level.getEntities().clear();</span>
+<span class="nc" id="L69">                this.gameEnded = true;</span>
+            }
+            else{
+<span class="nc" id="L72">                currentLevelIndex +=1;</span>
+<span class="nc" id="L73">                level = levels.get(currentLevelIndex);</span>
+            }
+        }
+<span class="fc" id="L76">    }</span>
+
+    public boolean boostHeight() {
+<span class="fc" id="L79">        return level.boostHeight();</span>
+    }
+
+    public boolean dropHeight() {
+<span class="nc" id="L83">        return level.dropHeight();</span>
+    }
+
+    public boolean moveLeft() {
+<span class="fc" id="L87">        return level.moveLeft();</span>
+    }
+
+    public boolean moveRight() {
+<span class="fc" id="L91">        return level.moveRight();</span>
+    }
+
+    public void tick() {
+<span class="fc" id="L95">        level.update();</span>
+<span class="fc" id="L96">        notifyObservers();</span>
+<span class="fc" id="L97">        startLevel();</span>
+
+<span class="fc" id="L99">        List&lt;DynamicEntity&gt; toDelete = level.getToDelete();</span>
+<span class="pc bpc" id="L100" title="1 of 2 branches missed.">        for(int i = 0; i &lt; toDelete.size(); i++){</span>
+<span class="nc bnc" id="L101" title="All 2 branches missed.">            if(toDelete.get(i).getColour().equals(&quot;RED&quot;)){</span>
+<span class="nc" id="L102">                red +=1;</span>
+            }
+<span class="nc bnc" id="L104" title="All 2 branches missed.">            if(toDelete.get(i).getColour().equals(&quot;BLUE&quot;)){</span>
+<span class="nc" id="L105">                blue +=1;</span>
+            }
+<span class="nc bnc" id="L107" title="All 2 branches missed.">            if(toDelete.get(i).getColour().equals(&quot;YELLOW&quot;)){</span>
+<span class="nc" id="L108">                yellow+=1;</span>
+            }
+        }
+<span class="fc" id="L111">    }</span>
+
+    @Override
+    public void registerObserver(Observer o) {
+<span class="fc" id="L115">        observer = o;</span>
+<span class="fc" id="L116">    }</span>
+
+    @Override
+    public void notifyObservers() {
+<span class="fc" id="L120">      observer.update();</span>
+<span class="fc" id="L121">    }</span>
+
+    @Override
+    public int redScore() {
+<span class="fc" id="L125">        return red;</span>
+    }
+
+    @Override
+    public int blueScore() {
+<span class="fc" id="L130">        return blue;</span>
+    }
+
+    @Override
+    public int yellowScore() {
+<span class="fc" id="L135">        return yellow;</span>
+    }
+
+    @Override
+    public GameEngine copy() {
+<span class="fc" id="L140">        return new GameEngineImpl(this);</span>
+    }
+
+    @Override
+    public boolean gameEnded() {
+<span class="fc" id="L145">        return gameEnded;</span>
+    }
+
+    @Override
+    public Memento createMemento() {
+<span class="fc" id="L150">        return new GameEngineMemento(this);</span>
+    }
+
+    @Override
+    public void setMemento(Memento m) {
+<span class="fc" id="L155">        GameEngine toLoad = m.restore();</span>
+<span class="fc" id="L156">        this.level =toLoad.getCurrentLevel();</span>
+<span class="fc" id="L157">        this.gameEnded =toLoad.gameEnded();</span>
+<span class="fc" id="L158">        this.yellow = toLoad.yellowScore();</span>
+<span class="fc" id="L159">        this.blue = toLoad.blueScore();</span>
+<span class="fc" id="L160">        this.red = toLoad.redScore();</span>
+<span class="fc" id="L161">    }</span>
+
+    @Override
+    public void saveGame() {
+<span class="fc" id="L165">        this.careTaker.save(this.createMemento());</span>
+
+<span class="fc" id="L167">    }</span>
+
+    @Override
+    public void loadGame() {
+<span class="fc" id="L171">        this.setMemento(careTaker.load());</span>
+<span class="fc" id="L172">    }</span>
+
+
+}
+</pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.8.7.202105040129</span></div></body></html>

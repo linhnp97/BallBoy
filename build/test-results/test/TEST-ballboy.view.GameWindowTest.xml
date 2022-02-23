@@ -1,0 +1,8 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<testsuite name="ballboy.view.GameWindowTest" tests="1" skipped="0" failures="0" errors="0" timestamp="2022-02-23T08:34:54" hostname="Linhs-MacBook-Pro-5.local" time="2.002">
+  <properties/>
+  <testcase name="Test()" classname="ballboy.view.GameWindowTest" time="2.002"/>
+  <system-out><![CDATA[17
+]]></system-out>
+  <system-err><![CDATA[]]></system-err>
+</testsuite>

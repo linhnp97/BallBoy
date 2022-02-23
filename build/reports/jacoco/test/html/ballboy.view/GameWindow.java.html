@@ -1,0 +1,258 @@
+<?xml version="1.0" encoding="UTF-8"?><!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml" lang="en"><head><meta http-equiv="Content-Type" content="text/html;charset=UTF-8"/><link rel="stylesheet" href="../jacoco-resources/report.css" type="text/css"/><link rel="shortcut icon" href="../jacoco-resources/report.gif" type="image/gif"/><title>GameWindow.java</title><link rel="stylesheet" href="../jacoco-resources/prettify.css" type="text/css"/><script type="text/javascript" src="../jacoco-resources/prettify.js"></script></head><body onload="window['PR_TAB_WIDTH']=4;prettyPrint()"><div class="breadcrumb" id="breadcrumb"><span class="info"><a href="../jacoco-sessions.html" class="el_session">Sessions</a></span><a href="../index.html" class="el_report">BallBoy</a> &gt; <a href="index.source.html" class="el_package">ballboy.view</a> &gt; <span class="el_source">GameWindow.java</span></div><h1>GameWindow.java</h1><pre class="source lang-java linenums">package ballboy.view;
+
+import ballboy.model.Entity;
+import ballboy.model.GameEngine;
+import ballboy.model.Observer.ScoreObserver;
+import javafx.animation.KeyFrame;
+import javafx.animation.Timeline;
+import javafx.scene.Scene;
+import javafx.scene.layout.Pane;
+import javafx.scene.paint.Paint;
+import javafx.scene.text.Text;
+import javafx.util.Duration;
+
+import java.util.ArrayList;
+import java.util.List;
+
+/**
+ * Class to visualise the all components to the screen
+ */
+public class GameWindow {
+    private static final double VIEWPORT_MARGIN_X = 100;
+    private static final double VIEWPORT_MARGIN_Y = 50;
+    private final int width;
+    private final int height;
+    private final double frameDurationMilli;
+    private final Scene scene;
+    private final Pane pane;
+    private GameEngine model;
+    private final List&lt;EntityView&gt; entityViews;
+    private final BackgroundDrawer backgroundDrawer;
+<span class="fc" id="L31">    private double xViewportOffset = 0.0;</span>
+<span class="fc" id="L32">    private double yViewportOffset = 0.0;</span>
+
+    public GameWindow(
+            GameEngine model,
+            int width,
+            int height,
+<span class="fc" id="L38">            double frameDurationMilli) {</span>
+<span class="fc" id="L39">        this.model = model;</span>
+<span class="fc" id="L40">        this.width = width;</span>
+<span class="fc" id="L41">        this.height = height;</span>
+<span class="fc" id="L42">        this.frameDurationMilli = frameDurationMilli;</span>
+<span class="fc" id="L43">        pane = new Pane();</span>
+<span class="fc" id="L44">        scene = new Scene(pane, width, height);</span>
+
+<span class="fc" id="L46">        entityViews = new ArrayList&lt;&gt;();</span>
+
+<span class="fc" id="L48">        KeyboardInputHandler keyboardInputHandler = new KeyboardInputHandler(model);</span>
+
+<span class="fc" id="L50">        scene.setOnKeyPressed(keyboardInputHandler::handlePressed);</span>
+<span class="fc" id="L51">        scene.setOnKeyReleased(keyboardInputHandler::handleReleased);</span>
+
+<span class="fc" id="L53">        backgroundDrawer = new BlockedBackground();</span>
+<span class="fc" id="L54">        backgroundDrawer.draw(model, pane);</span>
+
+<span class="fc" id="L56">        Text score = new Text();</span>
+<span class="fc" id="L57">        score.setText(&quot;Total Enemy Killed:&quot;);</span>
+<span class="fc" id="L58">        score.setX(50);</span>
+<span class="fc" id="L59">        score.setY(50);</span>
+<span class="fc" id="L60">        score.setStyle(&quot;-fx-font-family: 'serif'&quot;);</span>
+
+<span class="fc" id="L62">        Text totalRed = new Text();</span>
+<span class="fc" id="L63">        totalRed.setText(&quot;0&quot;);</span>
+<span class="fc" id="L64">        totalRed.setX(200);</span>
+<span class="fc" id="L65">        totalRed.setY(50);</span>
+<span class="fc" id="L66">        totalRed.setY(50);</span>
+<span class="fc" id="L67">        totalRed.setFill(Paint.valueOf(&quot;RED&quot;));</span>
+<span class="fc" id="L68">        totalRed.setStyle(&quot;-fx-font-family: 'serif'&quot;);</span>
+
+<span class="fc" id="L70">        Text totalBlue = new Text();</span>
+<span class="fc" id="L71">        totalBlue.setText(&quot;0&quot;);</span>
+<span class="fc" id="L72">        totalBlue.setX(250);</span>
+<span class="fc" id="L73">        totalBlue.setY(50);</span>
+<span class="fc" id="L74">        totalBlue.setFill(Paint.valueOf(&quot;BLUE&quot;));</span>
+<span class="fc" id="L75">        totalBlue.setStyle(&quot;-fx-font-family: 'serif'&quot;);</span>
+
+<span class="fc" id="L77">        Text totalYellow = new Text();</span>
+<span class="fc" id="L78">        totalYellow.setText(&quot;0&quot;);</span>
+<span class="fc" id="L79">        totalYellow.setX(300);</span>
+<span class="fc" id="L80">        totalYellow.setY(50);</span>
+<span class="fc" id="L81">        totalYellow.setStyle(&quot;-fx-font-family: 'serif'&quot;);</span>
+<span class="fc" id="L82">        totalYellow.setFill(Paint.valueOf(&quot;YELLOW&quot;));</span>
+
+<span class="fc" id="L84">        ArrayList&lt;Text&gt; texts = new ArrayList&lt;&gt;();</span>
+<span class="fc" id="L85">        texts.add(totalRed);</span>
+<span class="fc" id="L86">        texts.add(totalBlue);</span>
+<span class="fc" id="L87">        texts.add(totalYellow);</span>
+
+<span class="fc" id="L89">        pane.getChildren().add(totalRed);</span>
+<span class="fc" id="L90">        pane.getChildren().add(totalBlue);</span>
+<span class="fc" id="L91">        pane.getChildren().add(totalYellow);</span>
+<span class="fc" id="L92">        pane.getChildren().add(score);</span>
+
+<span class="fc" id="L94">        Text levelScore = new Text();</span>
+<span class="fc" id="L95">        levelScore.setText(&quot;Enemy Killed This Level:&quot;);</span>
+<span class="fc" id="L96">        levelScore.setX(50);</span>
+<span class="fc" id="L97">        levelScore.setY(100);</span>
+<span class="fc" id="L98">        levelScore.setStyle(&quot;-fx-font-family: 'serif'&quot;);</span>
+
+
+<span class="fc" id="L101">        Text red = new Text();</span>
+<span class="fc" id="L102">        red.setText(&quot;0&quot;);</span>
+<span class="fc" id="L103">        red.setX(200);</span>
+<span class="fc" id="L104">        red.setY(100);</span>
+<span class="fc" id="L105">        red.setFill(Paint.valueOf(&quot;RED&quot;));</span>
+<span class="fc" id="L106">        red.setStyle(&quot;-fx-font-family: 'serif'&quot;);</span>
+
+<span class="fc" id="L108">        Text blue = new Text();</span>
+<span class="fc" id="L109">        blue.setText(&quot;0&quot;);</span>
+<span class="fc" id="L110">        blue.setX(250);</span>
+<span class="fc" id="L111">        blue.setY(100);</span>
+<span class="fc" id="L112">        blue.setFill(Paint.valueOf(&quot;BLUE&quot;));</span>
+<span class="fc" id="L113">        blue.setStyle(&quot;-fx-font-family: 'serif'&quot;);</span>
+
+<span class="fc" id="L115">        Text yellow = new Text();</span>
+<span class="fc" id="L116">        yellow.setText(&quot;0&quot;);</span>
+<span class="fc" id="L117">        yellow.setX(300);</span>
+<span class="fc" id="L118">        yellow.setY(100);</span>
+<span class="fc" id="L119">        yellow.setStyle(&quot;-fx-font-family: 'serif'&quot;);</span>
+<span class="fc" id="L120">        yellow.setFill(Paint.valueOf(&quot;YELLOW&quot;));</span>
+
+<span class="fc" id="L122">        ArrayList&lt;Text&gt; levelScoreTracker = new ArrayList&lt;&gt;();</span>
+<span class="fc" id="L123">        levelScoreTracker.add(red);</span>
+<span class="fc" id="L124">        levelScoreTracker.add(blue);</span>
+<span class="fc" id="L125">        levelScoreTracker.add(yellow);</span>
+
+<span class="fc" id="L127">        pane.getChildren().add(levelScore);</span>
+<span class="fc" id="L128">        pane.getChildren().add(red);</span>
+<span class="fc" id="L129">        pane.getChildren().add(blue);</span>
+<span class="fc" id="L130">        pane.getChildren().add(yellow);</span>
+
+<span class="fc" id="L132">        model.registerObserver(new ScoreObserver(model, texts, levelScoreTracker));</span>
+<span class="fc" id="L133">    }</span>
+
+    public Scene getScene() {
+<span class="nc" id="L136">        return scene;</span>
+    }
+
+    public void run() {
+<span class="fc" id="L140">        Timeline timeline = new Timeline(new KeyFrame(Duration.millis(frameDurationMilli),</span>
+<span class="fc" id="L141">                t -&gt; this.draw()));</span>
+
+<span class="fc" id="L143">        timeline.setCycleCount(Timeline.INDEFINITE);</span>
+<span class="fc" id="L144">        timeline.play();</span>
+<span class="fc" id="L145">    }</span>
+
+    private void draw() {
+<span class="pc bpc" id="L148" title="1 of 2 branches missed.">        if(model.gameEnded()){</span>
+<span class="nc" id="L149">            Text winner = new Text();</span>
+<span class="nc" id="L150">            winner.setText(&quot;WINNER&quot;);</span>
+<span class="nc" id="L151">            winner.setX(250);</span>
+<span class="nc" id="L152">            winner.setY(300);</span>
+<span class="nc" id="L153">            winner.setFill(Paint.valueOf(&quot;RED&quot;));</span>
+<span class="nc" id="L154">            winner.setStyle(&quot;-fx-font-family: 'serif'&quot;);</span>
+<span class="nc" id="L155">            pane.getChildren().add(winner);</span>
+        }
+
+<span class="fc" id="L158">        model.tick();</span>
+
+<span class="pc bpc" id="L160" title="1 of 2 branches missed.">        for(int i = 0 ; i &lt; model.getCurrentLevel().getToDelete().size(); i++){</span>
+<span class="nc bnc" id="L161" title="All 2 branches missed.">            for(EntityView view: entityViews){</span>
+<span class="nc bnc" id="L162" title="All 2 branches missed.">                if(view.matchesEntity(model.getCurrentLevel().getToDelete().get(i))){</span>
+<span class="nc" id="L163">                    pane.getChildren().remove(view.getNode());</span>
+                }
+<span class="nc" id="L165">            }</span>
+        }
+
+<span class="fc" id="L168">        model.getCurrentLevel().getToDelete().clear();</span>
+
+
+<span class="fc" id="L171">        List&lt;Entity&gt; entities = model.getCurrentLevel().getEntities();</span>
+<span class="fc bfc" id="L172" title="All 2 branches covered.">        for (EntityView entityView : entityViews) {</span>
+<span class="fc" id="L173">            entityView.markForDelete();</span>
+<span class="fc" id="L174">        }</span>
+
+<span class="fc" id="L176">        double heroXPos = model.getCurrentLevel().getHeroX();</span>
+<span class="fc" id="L177">        double viewportLeftBar = xViewportOffset + VIEWPORT_MARGIN_X;</span>
+<span class="fc" id="L178">        double viewportRightBar = viewportLeftBar + (width - 2 * VIEWPORT_MARGIN_X);</span>
+
+<span class="fc bfc" id="L180" title="All 2 branches covered.">        if (heroXPos &lt; viewportLeftBar) {</span>
+<span class="fc" id="L181">            xViewportOffset -= heroXPos - viewportLeftBar;</span>
+<span class="fc bfc" id="L182" title="All 2 branches covered.">        } else if (heroXPos + model.getCurrentLevel().getHeroWidth() &gt; viewportRightBar) {</span>
+<span class="fc" id="L183">            xViewportOffset += heroXPos + model.getCurrentLevel().getHeroWidth() - viewportRightBar;</span>
+        }
+
+<span class="fc" id="L186">        heroXPos -= xViewportOffset;</span>
+
+<span class="fc bfc" id="L188" title="All 2 branches covered.">        if (heroXPos &lt; VIEWPORT_MARGIN_X) {</span>
+<span class="pc bpc" id="L189" title="1 of 2 branches missed.">            if (xViewportOffset &gt;= 0) { // Don't go further left than the start of the level</span>
+<span class="fc" id="L190">                xViewportOffset -= VIEWPORT_MARGIN_X - heroXPos;</span>
+<span class="pc bpc" id="L191" title="1 of 2 branches missed.">                if (xViewportOffset &lt; 0) {</span>
+<span class="fc" id="L192">                    xViewportOffset = 0;</span>
+                }
+            }
+        }
+
+<span class="fc" id="L197">        double levelRight = model.getCurrentLevel().getLevelWidth();</span>
+<span class="fc" id="L198">        double screenRight = xViewportOffset + width - model.getCurrentLevel().getHeroWidth();</span>
+<span class="fc bfc" id="L199" title="All 2 branches covered.">        if (screenRight &gt; levelRight) {</span>
+<span class="fc" id="L200">            xViewportOffset = levelRight - width + model.getCurrentLevel().getHeroWidth();</span>
+        }
+
+
+<span class="fc" id="L204">        double levelTop = 0.0;</span>
+<span class="fc" id="L205">        double levelBottom = model.getCurrentLevel().getLevelHeight();</span>
+<span class="fc" id="L206">        double heroYPos = model.getCurrentLevel().getHeroY();</span>
+<span class="fc" id="L207">        double heroHeight = model.getCurrentLevel().getHeroHeight();</span>
+<span class="fc" id="L208">        double viewportTop = yViewportOffset + VIEWPORT_MARGIN_Y;</span>
+<span class="fc" id="L209">        double viewportBottom = yViewportOffset + height - 2 * VIEWPORT_MARGIN_Y;</span>
+
+<span class="fc bfc" id="L211" title="All 2 branches covered.">        if (heroYPos + heroHeight &gt; viewportBottom) {</span>
+            // if below, shift down
+<span class="fc" id="L213">            yViewportOffset += heroYPos + heroHeight - viewportBottom;</span>
+<span class="fc bfc" id="L214" title="All 2 branches covered.">        } else if (heroYPos &lt; viewportTop) {</span>
+            // if above, shift up
+<span class="fc" id="L216">            yViewportOffset -= viewportTop - heroYPos;</span>
+        }
+
+<span class="fc" id="L219">        double screenBottom = yViewportOffset + height;</span>
+<span class="fc" id="L220">        double screenTop = yViewportOffset;</span>
+        // shift back in the instance when we're near the boundary
+<span class="fc bfc" id="L222" title="All 2 branches covered.">        if (screenBottom &gt; levelBottom) {</span>
+<span class="fc" id="L223">            yViewportOffset -= screenBottom - levelBottom;</span>
+<span class="fc bfc" id="L224" title="All 2 branches covered.">        } else if (screenTop &lt; 0.0) {</span>
+<span class="fc" id="L225">            yViewportOffset -= screenTop;</span>
+        }
+
+
+
+<span class="fc" id="L230">        backgroundDrawer.update(xViewportOffset, yViewportOffset);</span>
+
+<span class="fc bfc" id="L232" title="All 2 branches covered.">        for (Entity entity : entities) {</span>
+<span class="fc" id="L233">            boolean notFound = true;</span>
+<span class="fc bfc" id="L234" title="All 2 branches covered.">            for (EntityView view : entityViews) {</span>
+<span class="fc bfc" id="L235" title="All 2 branches covered.">                if (view.matchesEntity(entity)) {</span>
+<span class="fc" id="L236">                    notFound = false;</span>
+<span class="fc" id="L237">                    view.update(xViewportOffset, yViewportOffset);</span>
+<span class="fc" id="L238">                    break;</span>
+                }
+<span class="fc" id="L240">            }</span>
+<span class="fc bfc" id="L241" title="All 2 branches covered.">            if (notFound) {</span>
+<span class="fc" id="L242">                EntityView entityView = new EntityViewImpl(entity);</span>
+<span class="fc" id="L243">                entityViews.add(entityView);</span>
+<span class="fc" id="L244">                pane.getChildren().add(entityView.getNode());</span>
+            }
+<span class="fc" id="L246">        }</span>
+
+<span class="fc bfc" id="L248" title="All 2 branches covered.">        for (EntityView entityView : entityViews) {</span>
+<span class="fc bfc" id="L249" title="All 2 branches covered.">            if (entityView.isMarkedForDelete()) {</span>
+<span class="fc" id="L250">                pane.getChildren().remove(entityView.getNode());</span>
+            }
+<span class="fc" id="L252">        }</span>
+
+<span class="fc" id="L254">        entityViews.removeIf(EntityView::isMarkedForDelete);</span>
+<span class="fc" id="L255">    }</span>
+
+}
+</pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.8.7.202105040129</span></div></body></html>

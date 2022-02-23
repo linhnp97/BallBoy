@@ -1,0 +1,43 @@
+<?xml version="1.0" encoding="UTF-8"?><!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml" lang="en"><head><meta http-equiv="Content-Type" content="text/html;charset=UTF-8"/><link rel="stylesheet" href="../jacoco-resources/report.css" type="text/css"/><link rel="shortcut icon" href="../jacoco-resources/report.gif" type="image/gif"/><title>ScoreObserver.java</title><link rel="stylesheet" href="../jacoco-resources/prettify.css" type="text/css"/><script type="text/javascript" src="../jacoco-resources/prettify.js"></script></head><body onload="window['PR_TAB_WIDTH']=4;prettyPrint()"><div class="breadcrumb" id="breadcrumb"><span class="info"><a href="../jacoco-sessions.html" class="el_session">Sessions</a></span><a href="../index.html" class="el_report">BallBoy</a> &gt; <a href="index.source.html" class="el_package">ballboy.model.Observer</a> &gt; <span class="el_source">ScoreObserver.java</span></div><h1>ScoreObserver.java</h1><pre class="source lang-java linenums">package ballboy.model.Observer;
+
+import ballboy.model.Entity;
+import ballboy.model.GameEngine;
+import ballboy.model.entities.DynamicEntity;
+import javafx.scene.text.Text;
+
+import java.util.List;
+
+/**
+ * Concrete class that update scores
+ */
+public class ScoreObserver implements Observer{
+    private GameEngine model;
+    private List&lt;Text&gt; totalScore;
+    private List&lt;Text&gt; levelScore;
+
+<span class="fc" id="L18">    public ScoreObserver(GameEngine model, List&lt;Text&gt; totalScore, List&lt;Text&gt; levelScore){</span>
+<span class="fc" id="L19">        this.totalScore = totalScore;</span>
+<span class="fc" id="L20">        this.model = model;</span>
+<span class="fc" id="L21">        this.levelScore = levelScore;</span>
+<span class="fc" id="L22">    }</span>
+
+    public void update(){
+<span class="fc" id="L25">        totalScore.get(0).setText(String.valueOf(model.redScore()));</span>
+<span class="fc" id="L26">        totalScore.get(1).setText(String.valueOf(model.blueScore()));</span>
+<span class="fc" id="L27">        totalScore.get(2).setText(String.valueOf(model.yellowScore()));</span>
+
+<span class="fc" id="L29">        levelScore.get(0).setText(String.valueOf(model.getCurrentLevel().redScore()));</span>
+<span class="fc" id="L30">        levelScore.get(1).setText(String.valueOf(model.getCurrentLevel().blueScore()));</span>
+<span class="fc" id="L31">        levelScore.get(2).setText(String.valueOf(model.getCurrentLevel().yellowScore()));</span>
+<span class="fc" id="L32">    }</span>
+
+    public List&lt;Text&gt; getTotalScore(){
+<span class="fc" id="L35">        return totalScore;</span>
+    }
+
+<span class="fc" id="L38">    public List&lt;Text&gt; getLevelScore(){ return levelScore; }</span>
+
+
+
+}
+</pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.8.7.202105040129</span></div></body></html>
